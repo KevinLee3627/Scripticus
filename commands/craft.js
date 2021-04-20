@@ -218,11 +218,7 @@ module.exports = {
     }
   },
 	executeSlash(interaction) {
-		console.log(interaction);
-		const userId = interaction.member.user.id;
 		const [itemName, itemQty] = interaction.data.options.map(option => option.value);
-		console.log(itemName, itemQty);
-		
 		const codeName = convertInputToCode(itemName);
 		const recipeObj = generateRecipe(codeName);
 		const recipeTitle = `Crafting recipe for ${convertToTitleCase(
@@ -253,7 +249,7 @@ module.exports = {
 		}
 		axios.post(url, json)
 			.then(res => {
-				// console.log(res);
+				console.log(res);
 			})
 			.catch(err => console.log(err))
 	}

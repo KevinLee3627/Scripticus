@@ -27,6 +27,7 @@ module.exports = {
 			axios.post(url, json)
 				.then(res => {})
 				.catch(err => console.log(err))
+			return;
 		}
 
     if (args.length > 0) {

@@ -74,7 +74,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 
 	if (!command) return;
 	if (!command.executeSlash) command.execute(null, null, interaction=interaction);
-	command.executeSlash(interaction)
+	else command.executeSlash(interaction)
 })
 
 client.on('message', (message) => {
