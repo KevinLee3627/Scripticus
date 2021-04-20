@@ -1,6 +1,8 @@
 const items = require('../util/items.js');
 const alias = require('../util/alias');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, Discord } = require('discord.js');
+const { loggers } = require('winston');
+const axios = require('axios');
 
 function convertCodeToDisplay(itemCode) {
   // Returns item's display name from its code name
@@ -214,5 +216,45 @@ module.exports = {
       );
       message.channel.send(embed);
     }
-  }
+  },
+	executeSlash(interaction) {
+		console.log(interaction);
+		const userId = interaction.member.user.id;
+		const [itemName, itemQty] = interaction.data.options.map(option => option.value);
+		console.log(itemName, itemQty);
+		
+		const codeName = convertInputToCode(itemName);
+		const recipeObj = generateRecipe(codeName);
+		const recipeTitle = `Crafting recipe for ${convertToTitleCase(
+			items[codeName].Name
+		)} (x${itemQty})`;
+		const recipeText = generateRecipeText(recipeObj, 0, itemQty);
+		const recipeFooter = 'To see total material costs, click 🔄';
+
+		const materialsObj = generateTotalMaterials(recipeObj, itemQty);
+		const materialsTitle = `Total material costs for ${convertToTitleCase(
+			items[codeName].Name
+		)} (x${itemQty})`;
+		const materialsText = generateTotalMaterialsText(materialsObj);
+		const materialsFooter = 'To see full recipe, click 🔄';
+
+		const initialEmbed = createEmbed(
+			recipeTitle,
+			'```' + recipeText + '```',
+			recipeFooter
+		);
+
+		const url = `https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`;
+		const json = {
+			"type": 4,
+			"data": {
+				"embeds": [initialEmbed]
+			}
+		}
+		axios.post(url, json)
+			.then(res => {
+				// console.log(res);
+			})
+			.catch(err => console.log(err))
+	}
 };

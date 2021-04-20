@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 /* eslint-disable indent */
 function diceRoll(num) {
   return Math.ceil(Math.random() * num);
@@ -7,9 +9,25 @@ module.exports = {
   name: 'roll',
   description: 'Roll a dice! 🎲',
   usage: '<sides>',
-  async execute(message, args) {
+  async execute(message, args, interaction=null) {
     let isNum;
     let num = -1;
+
+		if (interaction) {
+			[num] = interaction.data.options.map(option => option.value);
+			const sides = num === 0 ? 6 : num;
+			const roll = diceRoll(sides);
+			const url = `https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`;
+			const json = {
+				"type": 4,
+				"data": {
+					"content": `You rolled a ${sides}-sided die! 🎲 You rolled ${roll}!`
+				}
+			}
+			axios.post(url, json)
+				.then(res => {})
+				.catch(err => console.log(err))
+		}
 
     if (args.length > 0) {
       isNum = !isNaN(args[0]);

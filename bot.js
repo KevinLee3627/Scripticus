@@ -4,6 +4,7 @@ const { Client, Collection } = require('discord.js');
 const Logger = require('./util/Logger.js');
 const mongo = require('./mongo/mongo.js');
 const chalk = require('chalk');
+const axios = require('axios');
 require('dotenv').config();
 const fs = require('fs');
 
@@ -63,10 +64,22 @@ client.once('ready', async () => {
   logger.log(`${client.user.username} is ready!`);
 });
 
+client.ws.on('INTERACTION_CREATE', async interaction => {
+	const commandName = interaction.data.name;
+  const command =
+    client.commands.get(commandName) ||
+    client.commands.find(
+      (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
+    );
+
+	if (!command) return;
+	if (!command.executeSlash) command.execute(null, null, interaction=interaction);
+	command.executeSlash(interaction)
+})
+
 client.on('message', (message) => {
   // Ensures each server uses its own settings (if defined), doesn't use prefix in dms
   const prefix = client.getPrefix(message);
-
   if (shouldIgnore(message, prefix)) return;
 
   const args = message.content.slice(prefix.length).trim().split(/ +/);
